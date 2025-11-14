@@ -1,0 +1,123 @@
+
+# quizApp
+
+A full-stack quiz application built with Java/Spring Boot (backend) and React (frontend).
+
+## Features
+
+-   Create, manage, and take quizzes
+-   Supports multiple question types (multiple choice)
+-   Track user scores and performance
+-   RESTful API for all quiz operations
+-   User-friendly, responsive interface
+
+## Technology Stack
+
+### Backend
+
+-   **Language:** Java 17
+-   **Framework:** Spring Boot
+-   **Build Tool:** Maven
+-   **Database:** PostgreSQL
+-   **ORM:** Spring Data JPA
+
+### Frontend
+
+-   **Library:** React
+-   **API Client:** Axios
+-   **Routing:** React Router DOM
+-   **Icons:** Lucide-React
+
+## Getting Started
+
+### Prerequisites
+
+-   Java 17 or later
+-   Maven
+-   PostgreSQL
+-   [Node.js](https://nodejs.org/en) (which includes npm)
+
+---
+
+### Setup & Run
+
+This project is in two parts: the `backend` (Spring Boot API) and the `Frontend` (React App). You must run **both** at the same time.
+
+#### 1. Backend (Spring Boot)
+
+First, get the backend server running.
+
+1.  **Navigate to the backend:**
+    ```bash
+    # From the root project folder
+    cd backend
+    ```
+
+2.  **Configure the database:**
+    -   Edit `src/main/resources/application.properties` to set your PostgreSQL database URL, username, and password.
+
+3.  **Build the project:**
+    ```bash
+    mvn clean install
+    ```
+
+4.  **Run the application:**
+    ```bash
+    mvn spring-boot:run
+    ```
+    -   The backend will now be running on `http://localhost:8081`.
+
+#### 2. Frontend (React)
+
+In a **new and separate terminal**, get the frontend UI running.
+
+1.  **Navigate to the frontend:**
+    ```bash
+    # From the root project folder
+    cd Frontend
+    ```
+
+2.  **Install dependencies:**
+    ```bash
+    npm install
+    ```
+
+3.  **Run the application:**
+    ```bash
+    npm start
+    ```
+    -   The frontend development server will start, and it should automatically open `http://localhost:5173` (or a similar port) in your browser.
+
+---
+
+## Access the App
+
+Once both the backend and frontend are running, you can access the application by visiting:
+**`http://localhost:5173`** (or whichever port your frontend is running on)
+
+## API Endpoints
+
+The backend API runs on `http://localhost:8081`.
+
+### Quiz Controller (`/quiz`)
+
+-   `POST /quiz/create?category=...&numQ=...&title=...` — Create a new quiz.
+-   `GET /quiz/get/{id}` — Get a list of questions for a quiz (for the user).
+-   `GET /quiz/all` — Get a list of all available quizzes.
+-   `POST /quiz/submit/{id}` — Submit a quiz and get the score.
+-   `DELETE /quiz/delete/{id}` — Delete a quiz.
+
+### Question Controller (`/question`)
+
+-   `GET /question/allQuestions` — Get all questions from the database.
+-   `GET /question/category/{category}` — Get questions by category.
+-   `POST /question/add` — Add a new single question.
+-   `POST /question/add-batch` — Add a list of new questions.
+
+## Contributing
+
+Contributions are welcome! Please fork the repository, make your changes, and submit a pull request.
+
+## Author
+
+[kireeti-ai](https://github.com/kireeti-ai)
