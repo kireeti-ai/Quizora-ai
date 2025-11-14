@@ -70,3 +70,16 @@ export const fetchAllQuestions = () => api.get('/question/allQuestions');
 * @param {Array<object>} questions - An array of Question objects.
 */
 export const addQuestionsBatch = (questions) => api.post('/question/add-batch', questions);
+/**
+ * Updates an existing quiz's title.
+ * Corresponds to PUT /quiz/update/{id}
+ * @param {number} id - The ID of the quiz to update.
+ * @param {string} title - The new title for the quiz.
+ */
+export const updateQuizById=(id,title)=>{
+    const params=new URLSearchParams();
+    params.append('title',title);
+    return api.put(`/quiz/update/${id}`,null,{
+        params:params
+    });
+}
