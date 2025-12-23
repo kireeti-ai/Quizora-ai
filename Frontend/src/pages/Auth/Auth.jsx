@@ -1,0 +1,157 @@
+import React, { useState } from 'react';
+import { Mail, Lock, User, ArrowRight, Briefcase, GraduationCap, Hexagon } from 'lucide-react';
+import './Auth.css';
+import axios from 'axios';
+
+const Auth = () => {
+  const [isLogin, setIsLogin] = useState(true);
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [role, setRole] = useState('STUDENT');
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    const payload = {
+      username: email,
+      password: password,
+      ...(!isLogin && { name, role }),
+    };
+
+    try {
+      const endpoint = isLogin ? 'http://localhost:8080/login' : 'http://localhost:8080/register';
+      const response = await axios.post(endpoint, payload);
+      
+      if (isLogin) {
+        localStorage.setItem('token', response.data);
+        alert("Login Successful!");
+      } else {
+        alert("Registration Successful! Please login.");
+        setIsLogin(true);
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Authentication failed.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="split-screen-container">
+      
+      {/* LEFT SIDE: Sharp Gradient & Branding */}
+      <div className="left-panel">
+        <div className="brand-header">
+          <Hexagon size={32} className="brand-logo" strokeWidth={2.5} />
+          <h1>Quizora - Ai </h1>
+        </div>
+        
+        <div className="quote-container">
+          <h2>"The beautiful thing about learning is that no one can take it away from you."</h2>
+          <p>— B.B. King</p>
+        </div>
+
+        {/* Abstract Sharp Shapes instead of blurred circles */}
+        <div className="sharp-shape shape-1"></div>
+        <div className="sharp-shape shape-2"></div>
+      </div>
+
+      {/* RIGHT SIDE: Clean, Sharp Login */}
+      <div className="right-panel">
+        <div className="auth-box">
+          <div className="auth-header">
+            <h2>{isLogin ? 'Welcome back.' : 'Join the platform.'}</h2>
+            <p className="sub-text">
+              {isLogin ? 'Enter your credentials to access your account.' : 'Start your journey with us today.'}
+            </p>
+          </div>
+
+          <form className="auth-form" onSubmit={handleSubmit}>
+            {!isLogin && (
+              <div className="input-group">
+                <label>Full Name</label>
+                <div className="input-wrapper">
+                  <User className="input-icon" size={18} />
+                  <input
+                    type="text"
+                    placeholder="e.g. John Doe"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="input-field"
+                    required
+                  />
+                </div>
+              </div>
+            )}
+
+            <div className="input-group">
+              <label>Email Address</label>
+              <div className="input-wrapper">
+                <Mail className="input-icon" size={18} />
+                <input
+                  type="email"
+                  placeholder="name@company.com"
+                  className="input-field"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="input-group">
+              <label>Password</label>
+              <div className="input-wrapper">
+                <Lock className="input-icon" size={18} />
+                <input
+                  type="password"
+                  placeholder="••••••••"
+                  className="input-field"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+              </div>
+            </div>
+
+            {!isLogin && (
+              <div className="role-selector">
+                <div 
+                  className={`role-option ${role === 'STUDENT' ? 'active' : ''}`}
+                  onClick={() => setRole('STUDENT')}
+                >
+                  <GraduationCap size={16} />
+                  <span>Student</span>
+                </div>
+                <div 
+                  className={`role-option ${role === 'FACULTY' ? 'active' : ''}`}
+                  onClick={() => setRole('FACULTY')}
+                >
+                  <Briefcase size={16} />
+                  <span>Faculty</span>
+                </div>
+              </div>
+            )}
+
+            <button type="submit" className="btn-primary" disabled={loading}>
+              <span>{loading ? 'Processing...' : (isLogin ? 'Sign In' : 'Create Account')}</span>
+              {!loading && <ArrowRight size={18} />}
+            </button>
+          </form>
+
+          <div className="auth-footer">
+            <span>{isLogin ? "New here?" : "Member already?"}</span>
+            <button onClick={() => setIsLogin(!isLogin)} className="link-btn">
+              {isLogin ? 'Create an account' : 'Log in'}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Auth;

@@ -20,6 +20,12 @@ public class QuizController {
     QuizService quizService;
 
 
+    @GetMapping("/exm")
+    public String try3(){
+        return "yes";
+    }
+
+
     @PostMapping("create")
     public ResponseEntity<String> createQuiz(@RequestParam String category, @RequestParam int numQ, @RequestParam String title) {
         return quizService.createQuiz(category, numQ, title);
