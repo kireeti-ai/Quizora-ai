@@ -1,10 +1,14 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import './index.css'
-import App from './App.jsx'
+import React from 'react';
+import ReactDOM from 'react-dom/client'; // <--- YOU ARE LIKELY MISSING THIS LINE
+import { BrowserRouter } from 'react-router-dom'; // If you use Router here
+import App from './App.jsx';
+import './index.css';
 
-createRoot(document.getElementById('root')).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
-)
+// React 18+ Style
+ReactDOM.createRoot(document.getElementById('root')).render(
+  <React.StrictMode>
+    <BrowserRouter> {/* Ensure Router wraps App if not inside App.jsx */}
+      <App />
+    </BrowserRouter>
+  </React.StrictMode>
+);

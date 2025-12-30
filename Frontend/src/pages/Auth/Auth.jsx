@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Mail, Lock, User, ArrowRight, Briefcase, GraduationCap, Hexagon } from 'lucide-react';
+import { useNavigate } from 'react-router-dom'; // Added for redirection
 import './Auth.css';
 import axios from 'axios';
 
@@ -10,6 +11,17 @@ const Auth = () => {
   const [password, setPassword] = useState('');
   const [role, setRole] = useState('STUDENT');
   const [loading, setLoading] = useState(false);
+
+  const navigate = useNavigate(); // Hook for navigation
+
+  // Helper to decode JWT to get the role (Frontend side)
+  const parseJwt = (token) => {
+    try {
+      return JSON.parse(atob(token.split('.')[1]));
+    } catch (e) {
+      return null;
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -25,8 +37,24 @@ const Auth = () => {
       const response = await axios.post(endpoint, payload);
       
       if (isLogin) {
-        localStorage.setItem('token', response.data);
+        const token = response.data;
+        localStorage.setItem('token', token);
+        
+        // Decode token to find role
+        const decodedToken = parseJwt(token);
+        
+        // Logic: Check role from token OR fallback to email check if token doesn't have role claim
+        // This ensures it works even if your backend JWT setup is basic
+        const userRole = decodedToken?.role || (email.toLowerCase().includes('faculty') ? 'FACULTY' : 'STUDENT');
+
         alert("Login Successful!");
+
+        if (userRole === 'FACULTY') {
+          navigate('/faculty/dashboard');
+        } else {
+          navigate('/home');
+        }
+
       } else {
         alert("Registration Successful! Please login.");
         setIsLogin(true);
@@ -54,7 +82,7 @@ const Auth = () => {
           <p>— B.B. King</p>
         </div>
 
-        {/* Abstract Sharp Shapes instead of blurred circles */}
+        {/* Abstract Sharp Shapes */}
         <div className="sharp-shape shape-1"></div>
         <div className="sharp-shape shape-2"></div>
       </div>
