@@ -24,14 +24,10 @@ public class UserService {
 
     @Autowired
     private JWTService jwtService;
-
-    // ✅ REQUIRED BY /register
     public Users register(Users user) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepo.save(user);
     }
-
-    // ✅ REQUIRED BY /login
     public String verify(Users user) {
 
         Authentication authentication =

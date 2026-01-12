@@ -24,7 +24,7 @@ public class UserController {
     }
     @GetMapping("/hello")
     public String greet() {
-        return "Welcome! If you see this, you are logged in.";
+        return "welcome you are logged in.";
     }
 
 }

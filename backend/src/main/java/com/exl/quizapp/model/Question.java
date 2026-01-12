@@ -8,13 +8,12 @@ import lombok.Data;
 @Table(name = "question")
 public class Question {
 
-    // This annotation is the fix
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType. IDENTITY)
     private int id;
 
     @Column(name = "question_title")
-    private  String questionTitle;
+    private String questionTitle;
 
     private String option1;
     private String option2;
@@ -24,6 +23,7 @@ public class Question {
     @Column(name = "right_answer")
     private String rightAnswer;
 
-    private String diffcultylevel;
+    // Fixed: Changed from 'diffcultylevel' to 'difficultylevel'
+    private String difficultylevel;
     private String category;
 }

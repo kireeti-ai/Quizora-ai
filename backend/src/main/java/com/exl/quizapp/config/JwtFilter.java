@@ -42,7 +42,7 @@ public class JwtFilter extends OncePerRequestFilter {
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             token = authHeader.substring(7);
             try {
-                // ✅ FIX 1: correct method name
+
                 username = jwtService.extractUsername(token);
             } catch (Exception e) {
                 filterChain.doFilter(request, response);
@@ -58,7 +58,7 @@ public class JwtFilter extends OncePerRequestFilter {
                             .getBean(MyUserDetailsService.class)
                             .loadUserByUsername(username);
 
-            // ✅ FIX 2: pass username, not UserDetails
+
             if (jwtService.validateToken(token, userDetails.getUsername())) {
 
                 UsernamePasswordAuthenticationToken authenticationToken =

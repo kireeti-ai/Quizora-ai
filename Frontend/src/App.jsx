@@ -5,13 +5,13 @@ import QuestionBank from './pages/Faculty/QuestionBank';
 
 function App() {
   return (
-
+    <BrowserRouter>
       <Routes>
         <Route path="/" element={<Auth />} />
         <Route path="/faculty/dashboard" element={<FacultyDashboard />} />
         <Route path="/faculty/questions" element={<QuestionBank />} />
       </Routes>
-   
+    </BrowserRouter>
   )
 }
 

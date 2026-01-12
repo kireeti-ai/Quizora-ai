@@ -29,7 +29,7 @@ public class JWTService {
     public String extractUsername(String token) {
 
         return Jwts.parser()
-                .verifyWith(key)   // ✅ now valid
+                .verifyWith(key)
                 .build()
                 .parseSignedClaims(token)
                 .getPayload()
