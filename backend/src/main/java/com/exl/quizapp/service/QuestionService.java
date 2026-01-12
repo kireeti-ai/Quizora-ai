@@ -1,16 +1,10 @@
 package com.exl.quizapp.service;
 
-import com.exl.quizapp.dao.AttemptDao;
-import com.exl.quizapp.dao.QuizDao;
-import com.exl.quizapp.model.Question;
 import com.exl.quizapp.dao.QuestionDao;
-import com.exl.quizapp.model.QuestionWrapper;
-import com.exl.quizapp.model.Quiz;
-import com.exl.quizapp.model.Response;
+import com.exl.quizapp.model.Question;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -22,9 +16,10 @@ public class QuestionService {
     @Autowired
     QuestionDao questionDao;
 
-    public ResponseEntity<List<Question>> getAllQuestions(){
+    // UPDATED: Now fetches only the logged-in user's questions
+    public ResponseEntity<List<Question>> getQuestionsByFaculty(Long userId){
         try {
-            return new ResponseEntity<>(questionDao.findAll(), HttpStatus.OK);
+            return new ResponseEntity<>(questionDao.findByCreatedBy(userId), HttpStatus.OK);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -40,8 +35,13 @@ public class QuestionService {
         return new ResponseEntity<>(new ArrayList<>(), HttpStatus.BAD_REQUEST);
     }
 
-    public ResponseEntity<String> addQuestions(List<Question> questions) {
+    // UPDATED: Accepts userId for Batch Import (AI Generator)
+    public ResponseEntity<String> addQuestions(List<Question> questions, Long userId) {
         try{
+            // Set the owner for every question in the list
+            for(Question q : questions) {
+                q.setCreatedBy(userId);
+            }
             questionDao.saveAll(questions);
             return new ResponseEntity<>("Success: Added " + questions.size() + " questions", HttpStatus.CREATED);
         } catch (Exception e) {
@@ -50,15 +50,14 @@ public class QuestionService {
         return new ResponseEntity<>("Failed to add questions", HttpStatus.BAD_REQUEST);
     }
 
-    public ResponseEntity<String> addQuestion(Question question) {
+    // UPDATED: Accepts userId for Manual Add
+    public ResponseEntity<String> addQuestion(Question question, Long userId) {
         try{
-            // Validate that the question has all required fields
             if (question.getQuestionTitle() == null || question.getQuestionTitle().trim().isEmpty()) {
                 return new ResponseEntity<>("Question title is required", HttpStatus.BAD_REQUEST);
             }
-            if (question.getCategory() == null || question.getCategory().trim().isEmpty()) {
-                return new ResponseEntity<>("Category is required", HttpStatus.BAD_REQUEST);
-            }
+            // Set Owner
+            question.setCreatedBy(userId);
 
             questionDao.save(question);
             return new ResponseEntity<>("success", HttpStatus.CREATED);
@@ -74,7 +73,10 @@ public class QuestionService {
             if (existingQuestion.isEmpty()) {
                 return new ResponseEntity<>("Question not found", HttpStatus.NOT_FOUND);
             }
+            // Preserve the original creator
+            question.setCreatedBy(existingQuestion.get().getCreatedBy());
             question.setId(id);
+
             questionDao.save(question);
             return new ResponseEntity<>("Question updated successfully", HttpStatus.OK);
         } catch (Exception e) {
@@ -89,7 +91,6 @@ public class QuestionService {
             if (existingQuestion.isEmpty()) {
                 return new ResponseEntity<>("Question not found", HttpStatus.NOT_FOUND);
             }
-
             questionDao.deleteById(id);
             return new ResponseEntity<>("Question deleted successfully", HttpStatus.OK);
         } catch (Exception e) {

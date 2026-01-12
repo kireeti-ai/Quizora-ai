@@ -29,11 +29,11 @@ const QuestionBank = () => {
     return { headers: { Authorization: `Bearer ${token}` } };
   };
 
-  const fetchQuestions = async () => {
+const fetchQuestions = async () => {
     try {
       setLoading(true);
       setError('');
-      const response = await axios.get('http://localhost:8080/question/allQuestions', getAuthHeaders());
+      const response = await axios.get('http://localhost:8080/question/my-questions', getAuthHeaders());
       setQuestions(response.data);
     } catch (error) {
       console.error("Error fetching questions", error);

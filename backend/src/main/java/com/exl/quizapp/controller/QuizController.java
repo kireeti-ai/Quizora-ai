@@ -1,6 +1,6 @@
 package com.exl.quizapp.controller;
 
-import com.exl.quizapp.dao.UserRepo; // Import UserRepo
+import com.exl.quizapp.dao.UserRepo;
 import com.exl.quizapp.model.*;
 import com.exl.quizapp.service.QuizService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,7 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.security.Principal; // Import Principal
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -20,11 +20,22 @@ public class QuizController {
     QuizService quizService;
 
     @Autowired
-    UserRepo userRepo; // Inject UserRepo to find user by username
+    UserRepo userRepo;
 
     @PostMapping("create")
-    public ResponseEntity<String> createQuiz(@RequestParam String category, @RequestParam int numQ, @RequestParam String title, @RequestParam int duration, @RequestParam int maxAttempts) {
-        return quizService.createQuiz(category, numQ, title, duration, maxAttempts);
+    public ResponseEntity<String> createQuiz(
+            @RequestParam String category,
+            @RequestParam int numQ,
+            @RequestParam String title,
+            @RequestParam int duration,
+            @RequestParam int maxAttempts,
+            Principal principal) { // Inject Principal to get logged-in user
+
+        // Get the real user ID from the database using the username in the token
+        Users user = userRepo.findByUsername(principal.getName());
+
+        // Pass user.getId() instead of hardcoded 1L
+        return quizService.createQuiz(category, numQ, title, duration, maxAttempts, user.getId());
     }
 
     @GetMapping("get/{id}")
@@ -32,14 +43,11 @@ public class QuizController {
         return quizService.getQuizQuestions(id);
     }
 
-    // FIX #1: Get User from Token (Principal)
     @GetMapping("code/{code}")
-    public ResponseEntity<QuizStartResponse> getQuizByCode(@PathVariable String code, Principal principal){
-        Users user = userRepo.findByUsername(principal.getName());
-        return quizService.getQuizByCode(code, user.getId());
+    public ResponseEntity<QuizStartResponse> getQuizByCode(@PathVariable String code){
+        return quizService.getQuizByCode(code);
     }
 
-    // FIX #1: Get User from Token (Principal)
     @PostMapping("submit/{id}")
     public ResponseEntity<Attempt> submitQuiz(@PathVariable Integer id , @RequestBody List<Response> responses, Principal principal){
         Users user = userRepo.findByUsername(principal.getName());
@@ -56,30 +64,15 @@ public class QuizController {
         return quizService.getAllQuizzes();
     }
 
-    @GetMapping("faculty/{id}")
-    public ResponseEntity<List<Quiz>> getFacultyQuizzes(@PathVariable Long id) {
-        return quizService.getQuizzesByFaculty(id);
+    // --- NEW ENDPOINT: Get ONLY the logged-in faculty's quizzes ---
+    @GetMapping("my-quizzes")
+    public ResponseEntity<List<Quiz>> getMyQuizzes(Principal principal) {
+        Users user = userRepo.findByUsername(principal.getName());
+        return quizService.getQuizzesByFaculty(user.getId());
     }
 
     @PatchMapping("publish/{id}")
     public ResponseEntity<String> togglePublish(@PathVariable Integer id) {
         return quizService.togglePublish(id);
-    }
-
-    @DeleteMapping("delete/{id}")
-    public ResponseEntity<String> deleteQuiz(@PathVariable Integer id){
-        return quizService.deleteQuiz(id);
-    }
-
-    // FIX #1: Get User from Token (Principal) & Removed {userId} from URL
-    @GetMapping("attempts/student")
-    public ResponseEntity<List<Attempt>> getStudentAttempts(Principal principal){
-        Users user = userRepo.findByUsername(principal.getName());
-        return quizService.getStudentAttempts(user.getId());
-    }
-
-    @GetMapping("attempts/quiz/{quizId}")
-    public ResponseEntity<List<Attempt>> getQuizAttempts(@PathVariable Integer quizId){
-        return quizService.getQuizAttempts(quizId);
     }
 }

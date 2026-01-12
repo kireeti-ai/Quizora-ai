@@ -42,37 +42,37 @@ public class JwtFilter extends OncePerRequestFilter {
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             token = authHeader.substring(7);
             try {
-
                 username = jwtService.extractUsername(token);
             } catch (Exception e) {
-                filterChain.doFilter(request, response);
-                return;
+                // If token is invalid, just ignore it and proceed
+                System.out.println("JWT Error: " + e.getMessage());
             }
         }
 
-        if (username != null &&
-                SecurityContextHolder.getContext().getAuthentication() == null) {
+        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            try {
+                // --- CRITICAL FIX START ---
+                // We wrap this in try-catch. If the user was deleted from DB, this throws an exception.
+                // We catch it so the request doesn't crash with 403.
+                UserDetails userDetails = applicationContext
+                        .getBean(MyUserDetailsService.class)
+                        .loadUserByUsername(username);
 
-            UserDetails userDetails =
-                    applicationContext
-                            .getBean(MyUserDetailsService.class)
-                            .loadUserByUsername(username);
-
-
-            if (jwtService.validateToken(token, userDetails.getUsername())) {
-
-                UsernamePasswordAuthenticationToken authenticationToken =
-                        new UsernamePasswordAuthenticationToken(
-                                userDetails,
-                                null,
-                                userDetails.getAuthorities()
-                        );
-
-                authenticationToken.setDetails(
-                        new WebAuthenticationDetailsSource().buildDetails(request)
-                );
-
-                SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+                if (jwtService.validateToken(token, userDetails.getUsername())) {
+                    UsernamePasswordAuthenticationToken authenticationToken =
+                            new UsernamePasswordAuthenticationToken(
+                                    userDetails,
+                                    null,
+                                    userDetails.getAuthorities()
+                            );
+                    authenticationToken.setDetails(
+                            new WebAuthenticationDetailsSource().buildDetails(request)
+                    );
+                    SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+                }
+                // --- CRITICAL FIX END ---
+            } catch (Exception e) {
+                System.out.println("User not found (Token might be stale): " + e.getMessage());
             }
         }
 

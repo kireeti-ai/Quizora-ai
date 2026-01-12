@@ -3,8 +3,9 @@ import Auth from './pages/Auth/Auth';
 import FacultyDashboard from './pages/Faculty/FacultyDashboard';
 import QuestionBank from './pages/Faculty/QuestionBank';
 import StudentDashboard from './pages/Student/StudentDashboard';
-import QuizPlayer from './pages/Student/QuizPlayer'; // Import the player
+import QuizPlayer from './pages/Student/QuizPlayer';
 import ResultPage from './pages/Student/ResultPage';
+import AIQuestionGenerator from './pages/Faculty/AIQuestionGenerator';
 function App() {
   return (
     <BrowserRouter>
@@ -20,6 +21,7 @@ function App() {
         <Route path="/student/dashboard" element={<StudentDashboard />} />
         <Route path="/student/quiz/:code" element={<QuizPlayer />} />
         <Route path="/student/result/:id" element={<ResultPage />} />
+        <Route path="/faculty/ai-generator" element={<AIQuestionGenerator />} />
       </Routes>
     </BrowserRouter>
   )
