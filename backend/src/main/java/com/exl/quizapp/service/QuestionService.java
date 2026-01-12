@@ -1,10 +1,10 @@
 package com.exl.quizapp.service;
 
-import com.exl.quizapp. model.Question;
-import com. exl.quizapp.dao.QuestionDao;
+import com.exl.quizapp.model.Question;
+import com.exl.quizapp.dao.QuestionDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework. http.ResponseEntity;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -37,7 +37,7 @@ public class QuestionService {
     public ResponseEntity<String> addQuestions(List<Question> questions) {
         try{
             questionDao.saveAll(questions);
-            return new ResponseEntity<>("Success:  Added " + questions.size() + " questions", HttpStatus.CREATED);
+            return new ResponseEntity<>("Success: Added " + questions.size() + " questions", HttpStatus.CREATED);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -47,7 +47,7 @@ public class QuestionService {
     public ResponseEntity<String> addQuestion(Question question) {
         try{
             // Validate that the question has all required fields
-            if (question. getQuestionTitle() == null || question. getQuestionTitle().trim().isEmpty()) {
+            if (question.getQuestionTitle() == null || question.getQuestionTitle().trim().isEmpty()) {
                 return new ResponseEntity<>("Question title is required", HttpStatus.BAD_REQUEST);
             }
             if (question.getCategory() == null || question.getCategory().trim().isEmpty()) {

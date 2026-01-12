@@ -9,7 +9,7 @@ import lombok.Data;
 public class Question {
 
     @Id
-    @GeneratedValue(strategy = GenerationType. IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
     @Column(name = "question_title")
@@ -23,7 +23,6 @@ public class Question {
     @Column(name = "right_answer")
     private String rightAnswer;
 
-    // Fixed: Changed from 'diffcultylevel' to 'difficultylevel'
     private String difficultylevel;
     private String category;
 }

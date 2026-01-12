@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useNavigate } from 'react-router-dom'; // ← ADD THIS
-import { Plus, Save, Edit, Trash2, BookOpen, LogOut } from "lucide-react";
+import { useNavigate } from 'react-router-dom';
+import { Plus, Save, Edit, Trash2 } from "lucide-react";
+import Sidebar from '../../components/Sidebar/Sidebar';
 import "./Faculty.css";
 
 const QuestionBank = () => {
-  const navigate = useNavigate(); // ← ADD THIS
+  const navigate = useNavigate();
   const [questions, setQuestions] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -47,14 +48,14 @@ const QuestionBank = () => {
   }, []);
 
   const validateForm = () => {
-    if (!formData.questionTitle || !formData.option1 || !formData.option2 || 
+    if (!formData.questionTitle || !formData.option1 || !formData.option2 ||
         !formData.option3 || !formData.option4 || !formData.rightAnswer || !formData.category) {
       alert("Please fill in all fields");
       return false;
     }
 
     const options = [formData.option1, formData.option2, formData.option3, formData.option4];
-    if (! options.includes(formData.rightAnswer)) {
+    if (!options.includes(formData.rightAnswer)) {
       alert("Correct answer must match exactly one of the four options!");
       return false;
     }
@@ -64,7 +65,7 @@ const QuestionBank = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
@@ -77,17 +78,17 @@ const QuestionBank = () => {
         await axios.post('http://localhost:8080/question/add', formData, getAuthHeaders());
         alert("Question Added!");
       }
-      
+
       setShowModal(false);
       setEditingId(null);
       setFormData({
         questionTitle: '', option1: '', option2: '', option3: '', option4: '',
-        rightAnswer: '', difficultylevel: 'Easy', category:  ''
+        rightAnswer: '', difficultylevel: 'Easy', category: ''
       });
       fetchQuestions();
     } catch (error) {
       console.error(error);
-      alert(`Error ${editingId ? 'updating' : 'adding'} question:  ${error.response?.data || error.message}`);
+      alert(`Error ${editingId ? 'updating' : 'adding'} question: ${error.response?.data || error.message}`);
     }
   };
 
@@ -107,22 +108,22 @@ const QuestionBank = () => {
   };
 
   const handleDelete = async (id) => {
-    if (! window.confirm("Are you sure you want to delete this question?")) {
+    if (!window.confirm("Are you sure you want to delete this question?")) {
       return;
     }
 
     try {
-      await axios. delete(`http://localhost:8080/question/delete/${id}`, getAuthHeaders());
+      await axios.delete(`http://localhost:8080/question/delete/${id}`, getAuthHeaders());
       alert("Question Deleted!");
       fetchQuestions();
     } catch (error) {
       console.error(error);
-      alert("Error deleting question: " + (error.response?.data || error. message));
+      alert("Error deleting question: " + (error.response?.data || error.message));
     }
   };
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e. target.name]: e.target. value });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleCloseModal = () => {
@@ -130,39 +131,14 @@ const QuestionBank = () => {
     setEditingId(null);
     setFormData({
       questionTitle: '', option1: '', option2: '', option3: '', option4: '',
-      rightAnswer: '', difficultylevel:  'Easy', category: ''
+      rightAnswer: '', difficultylevel: 'Easy', category: ''
     });
   };
 
   return (
     <div className="faculty-container">
-      {/* Sidebar */}
-      <aside className="sidebar">
-        <div className="sidebar-header">
-          <BookOpen size={28} />
-          <span>FacultyPanel</span>
-        </div>
-        
-        <nav>
-          <div className="nav-link" onClick={() => navigate('/faculty/dashboard')}>
-            <span>My Quizzes</span>
-          </div>
-          <div className="nav-link active">
-            <span>Question Bank</span>
-          </div>
-          <div className="nav-link" onClick={() => alert('Reports coming soon!')}>
-            <span>Reports</span>
-          </div>
-        </nav>
-
-        <div className="nav-link logout-btn" onClick={() => {
-          localStorage.removeItem('token');
-          navigate('/');
-        }}>
-          <LogOut size={20} />
-          <span>Logout</span>
-        </div>
-      </aside>
+      {/* Sidebar Component Used Here */}
+      <Sidebar />
 
       {/* Main Content */}
       <div className="content-area">
@@ -175,10 +151,10 @@ const QuestionBank = () => {
 
         {error && (
           <div style={{
-            background: '#fee2e2', 
-            color: '#991b1b', 
-            padding:  '12px 16px', 
-            borderRadius: '8px', 
+            background: '#fee2e2',
+            color: '#991b1b',
+            padding: '12px 16px',
+            borderRadius: '8px',
             marginBottom: '20px',
             border: '1px solid #fecaca'
           }}>
@@ -201,8 +177,8 @@ const QuestionBank = () => {
           </div>
         ) : (
           <div className="grid-container">
-            {questions.length === 0 ?  (
-              <div style={{gridColumn: '1 / -1', textAlign: 'center', padding: '60px', color:  '#9ca3af'}}>
+            {questions.length === 0 ? (
+              <div style={{gridColumn: '1 / -1', textAlign: 'center', padding: '60px', color: '#9ca3af'}}>
                 <p style={{fontSize: '18px', marginBottom: '8px'}}>No questions found</p>
                 <p style={{fontSize: '14px'}}>Click "Add Question" to create your first question!</p>
               </div>
@@ -213,22 +189,22 @@ const QuestionBank = () => {
                   <div style={{margin: '12px 0', fontSize: '0.85rem', color: '#4b5563'}}>
                     <div style={{padding: '4px 0'}}><strong>A:</strong> {q.option1}</div>
                     <div style={{padding: '4px 0'}}><strong>B:</strong> {q.option2}</div>
-                    <div style={{padding:  '4px 0'}}><strong>C:</strong> {q.option3}</div>
-                    <div style={{padding: '4px 0'}}><strong>D:</strong> {q. option4}</div>
+                    <div style={{padding: '4px 0'}}><strong>C:</strong> {q.option3}</div>
+                    <div style={{padding: '4px 0'}}><strong>D:</strong> {q.option4}</div>
                   </div>
-                  <div className="card-meta" style={{display: 'flex', gap: '8px', alignItems:  'center', marginTop: '12px'}}>
+                  <div className="card-meta" style={{display: 'flex', gap: '8px', alignItems: 'center', marginTop: '12px'}}>
                     <span style={{background: '#dbeafe', color: '#1e40af', padding: '4px 10px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: '600'}}>
                       {q.category}
                     </span>
-                    <span style={{background:  '#fef3c7', color: '#92400e', padding: '4px 10px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: '600'}}>
-                      {q. difficultylevel || 'Easy'}
+                    <span style={{background: '#fef3c7', color: '#92400e', padding: '4px 10px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: '600'}}>
+                      {q.difficultylevel || 'Easy'}
                     </span>
                     <span style={{fontSize: '0.8rem', color: '#059669', fontWeight: '600', marginLeft: 'auto'}}>
                       ✓ {q.rightAnswer}
                     </span>
                   </div>
                   <div style={{display: 'flex', gap: '8px', marginTop: '16px', paddingTop: '16px', borderTop: '1px solid #e5e7eb'}}>
-                    <button 
+                    <button
                       onClick={() => handleEdit(q)}
                       style={{
                         flex: 1,
@@ -251,12 +227,12 @@ const QuestionBank = () => {
                     >
                       <Edit size={16} /> Edit
                     </button>
-                    <button 
+                    <button
                       onClick={() => handleDelete(q.id)}
                       style={{
                         flex: 1,
                         padding: '8px 12px',
-                        background:  '#ef4444',
+                        background: '#ef4444',
                         color: 'white',
                         border: 'none',
                         borderRadius: '6px',
@@ -269,8 +245,8 @@ const QuestionBank = () => {
                         fontWeight: '500',
                         transition: 'background 0.2s'
                       }}
-                      onMouseOver={(e) => e.currentTarget.style. background = '#dc2626'}
-                      onMouseOut={(e) => e.currentTarget.style. background = '#ef4444'}
+                      onMouseOver={(e) => e.currentTarget.style.background = '#dc2626'}
+                      onMouseOut={(e) => e.currentTarget.style.background = '#ef4444'}
                     >
                       <Trash2 size={16} /> Delete
                     </button>
@@ -285,25 +261,25 @@ const QuestionBank = () => {
       {/* Modal */}
       {showModal && (
         <div className="modal-overlay" onClick={handleCloseModal}>
-          <div className="modal-box" onClick={e => e.stopPropagation()} style={{width: '650px', maxHeight:  '90vh', overflowY: 'auto'}}>
+          <div className="modal-box" onClick={e => e.stopPropagation()} style={{width: '650px', maxHeight: '90vh', overflowY: 'auto'}}>
             <h2 style={{marginBottom: '24px', fontSize: '1.5rem', color: '#111827'}}>
-              {editingId ? '✏️ Edit Question' :  '➕ Add New Question'}
+              {editingId ? '✏️ Edit Question' : '➕ Add New Question'}
             </h2>
-            <form onSubmit={handleSubmit} style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap:  '16px'}}>
+            <form onSubmit={handleSubmit} style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px'}}>
               <div className="form-group" style={{gridColumn: 'span 2'}}>
                 <label>Question Text <span style={{color: '#ef4444'}}>*</span></label>
-                <textarea 
-                  name="questionTitle" 
-                  className="form-input" 
-                  value={formData.questionTitle} 
-                  onChange={handleChange} 
-                  required 
+                <textarea
+                  name="questionTitle"
+                  className="form-input"
+                  value={formData.questionTitle}
+                  onChange={handleChange}
+                  required
                   rows="3"
                   style={{resize: 'vertical', fontFamily: 'inherit'}}
                   placeholder="Enter your question here..."
                 />
               </div>
-              
+
               <div className="form-group">
                 <label>Option 1 <span style={{color: '#ef4444'}}>*</span></label>
                 <input name="option1" className="form-input" value={formData.option1} onChange={handleChange} required placeholder="First option" />
@@ -317,43 +293,43 @@ const QuestionBank = () => {
                 <input name="option3" className="form-input" value={formData.option3} onChange={handleChange} required placeholder="Third option" />
               </div>
               <div className="form-group">
-                <label>Option 4 <span style={{color:  '#ef4444'}}>*</span></label>
-                <input name="option4" className="form-input" value={formData. option4} onChange={handleChange} required placeholder="Fourth option" />
+                <label>Option 4 <span style={{color: '#ef4444'}}>*</span></label>
+                <input name="option4" className="form-input" value={formData.option4} onChange={handleChange} required placeholder="Fourth option" />
               </div>
 
               <div className="form-group">
                 <label>Correct Answer <span style={{color: '#ef4444'}}>*</span></label>
-                <input 
-                  name="rightAnswer" 
-                  className="form-input" 
-                  value={formData.rightAnswer} 
-                  onChange={handleChange} 
-                  required 
+                <input
+                  name="rightAnswer"
+                  className="form-input"
+                  value={formData.rightAnswer}
+                  onChange={handleChange}
+                  required
                   placeholder="Must match one of the options exactly"
                 />
-                <small style={{color: '#6b7280', fontSize: '0.75rem', display: 'block', marginTop:  '4px'}}>
+                <small style={{color: '#6b7280', fontSize: '0.75rem', display: 'block', marginTop: '4px'}}>
                   Must match one of the 4 options above exactly
                 </small>
               </div>
-              
+
               <div className="form-group">
                 <label>Category <span style={{color: '#ef4444'}}>*</span></label>
-                <input 
-                  name="category" 
-                  className="form-input" 
-                  value={formData.category} 
-                  onChange={handleChange} 
-                  required 
+                <input
+                  name="category"
+                  className="form-input"
+                  value={formData.category}
+                  onChange={handleChange}
+                  required
                   placeholder="e.g., Java, Python, Math"
                 />
               </div>
 
               <div className="form-group" style={{gridColumn: 'span 2'}}>
                 <label>Difficulty Level <span style={{color: '#ef4444'}}>*</span></label>
-                <select 
-                  name="difficultylevel" 
-                  className="form-input" 
-                  value={formData. difficultylevel} 
+                <select
+                  name="difficultylevel"
+                  className="form-input"
+                  value={formData.difficultylevel}
                   onChange={handleChange}
                   required
                   style={{cursor: 'pointer'}}
@@ -363,10 +339,10 @@ const QuestionBank = () => {
                   <option value="Hard">Hard</option>
                 </select>
               </div>
-              
+
               <div style={{gridColumn: 'span 2', display: 'flex', gap: '12px', marginTop: '8px'}}>
-                <button 
-                  type="button" 
+                <button
+                  type="button"
                   onClick={handleCloseModal}
                   style={{
                     flex: 1,
@@ -376,8 +352,8 @@ const QuestionBank = () => {
                     border: 'none',
                     borderRadius: '8px',
                     cursor: 'pointer',
-                    fontSize:  '15px',
-                    fontWeight:  '600',
+                    fontSize: '15px',
+                    fontWeight: '600',
                     transition: 'background 0.2s'
                   }}
                   onMouseOver={(e) => e.currentTarget.style.background = '#4b5563'}
@@ -385,9 +361,9 @@ const QuestionBank = () => {
                 >
                   Cancel
                 </button>
-                <button 
-                  type="submit" 
-                  className="btn-action" 
+                <button
+                  type="submit"
+                  className="btn-action"
                   style={{flex: 1, justifyContent: 'center', fontSize: '15px'}}
                 >
                   <Save size={18} /> {editingId ? 'Update Question' : 'Save Question'}

@@ -1,10 +1,10 @@
-package com. exl.quizapp.controller;
+package com.exl.quizapp.controller;
 
-import com.exl. quizapp.model.Question;
+import com.exl.quizapp.model.Question;
 import com.exl.quizapp.service.QuestionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org. springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -27,7 +27,7 @@ public class QuestionController {
 
     @PostMapping("add-batch")
     public ResponseEntity<String> addQuestions(@RequestBody List<Question> questions) {
-        return questionService. addQuestions(questions);
+        return questionService.addQuestions(questions);
     }
 
     @PostMapping("add")
