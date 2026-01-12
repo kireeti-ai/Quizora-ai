@@ -12,6 +12,7 @@ const QuizPlayer = () => {
   const [currentQIndex, setCurrentQIndex] = useState(0);
   const [selectedAnswers, setSelectedAnswers] = useState({});
   const [timeLeft, setTimeLeft] = useState(quizData?.duration ? quizData.duration * 60 : 0);
+
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
@@ -38,11 +39,11 @@ const QuizPlayer = () => {
   const handleOptionSelect = (questionId, option) => {
     setSelectedAnswers((prev) => ({ ...prev, [questionId]: option }));
   };
-const handleSubmit = async () => {
-    // 1. Prevent double submission
-    if (submitted) return;
 
-    // Format answers
+  const handleSubmit = async () => {
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+
     const responses = quizData.questions.map((q) => ({
       id: q.id,
       response: selectedAnswers[q.id] || "",
@@ -50,42 +51,36 @@ const handleSubmit = async () => {
 
     try {
       const token = localStorage.getItem("token");
-      // ensure userId is correct based on your backend logic
-      const userId = 1;
 
+      // Removed query param '?userId=1' - Backend now extracts it from Token
       const res = await axios.post(
-        `http://localhost:8080/quiz/submit/${quizData.quizId}?userId=${userId}`,
+        `http://localhost:8080/quiz/submit/${quizData.quizId}`,
         responses,
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      console.log("Server Response:", res.data); // Look at this in Console (F12)
+      console.log("Server Response:", res.data);
 
-      // --- CRITICAL FIX START ---
       let resultId = null;
 
       if (res.data && res.data.id) {
-        // Case A: Backend returns object { id: 5, score: 10 }
         resultId = res.data.id;
       } else if (typeof res.data === 'number') {
-        // Case B: Backend returns just the number 5
         resultId = res.data;
       }
 
       if (resultId) {
-        setSubmitted(true);
         navigate(`/student/result/${resultId}`);
       } else {
-        // Case C: Response came back but logic didn't find an ID
-        console.error("Could not find Result ID in response:", res.data);
-        alert("Quiz Submitted, but could not load results. Check console.");
-        // Do NOT redirect to dashboard here so you can see the error
+        console.error("Result ID missing:", res.data);
+        alert("Quiz Submitted, but result ID is missing. Check console.");
+        setIsSubmitting(false);
       }
-      // --- CRITICAL FIX END ---
 
     } catch (error) {
       console.error("Submission failed", error);
-      alert("Error submitting quiz. See console for details.");
+      alert("Error submitting quiz. Check console.");
+      setIsSubmitting(false);
     }
   };
 

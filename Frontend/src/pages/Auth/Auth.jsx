@@ -12,9 +12,7 @@ const Auth = () => {
   const [role, setRole] = useState('STUDENT');
   const [loading, setLoading] = useState(false);
 
-  const navigate = useNavigate(); // Hook for navigation
-
-  // Helper to decode JWT to get the role (Frontend side)
+  const navigate = useNavigate();
   const parseJwt = (token) => {
     try {
       return JSON.parse(atob(token.split('.')[1]));
@@ -38,18 +36,14 @@ const Auth = () => {
 if (isLogin) {
         const token = response.data;
         localStorage.setItem('token', token);
-
         const decodedToken = parseJwt(token);
-
-        // This will now correctly read 'FACULTY' or 'STUDENT' from the token
         const userRole = decodedToken?.role;
 
         console.log("Logged in Role:", userRole); // Debugging
-
         if (userRole === 'FACULTY') {
           navigate('/faculty/dashboard');
         } else {
-          navigate(' /student/dashboard'); // Or /student/dashboard if you created it
+          navigate('/student/dashboard');
         }
 
       } else {

@@ -1,22 +1,32 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { LogOut, User, Code, Hexagon } from 'lucide-react';
+import { LogOut, User, Code, Hexagon, History, Clock } from 'lucide-react';
 import './Student.css';
 
 const StudentDashboard = () => {
   const [code, setCode] = useState('');
   const [error, setError] = useState('');
+  const [attempts, setAttempts] = useState([]);
   const navigate = useNavigate();
 
-  // Helper to get user name (optional, if stored in localStorage)
-  // You might need to update Auth.jsx to store 'userName' if you want this to be dynamic
   const userName = localStorage.getItem('userName') || 'Student';
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('userName');
-    navigate('/auth'); // Redirect to login
+  useEffect(() => {
+    fetchHistory();
+  }, []);
+
+  const fetchHistory = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      // Updated Endpoint: No longer sending userId in URL
+      const res = await axios.get(`http://localhost:8080/quiz/attempts/student`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setAttempts(res.data);
+    } catch (err) {
+      console.error("Failed to fetch history", err);
+    }
   };
 
   const handleJoin = async (e) => {
@@ -30,20 +40,17 @@ const StudentDashboard = () => {
 
     try {
       const token = localStorage.getItem('token');
-      // Fetch Quiz Data
       const res = await axios.get(`http://localhost:8080/quiz/code/${code}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
       if (res.data) {
-        // Navigate to Player with Quiz Data
         navigate(`/student/quiz/${code}`, { state: { quizData: res.data } });
-      } else {
-        setError("Invalid Code");
       }
     } catch (err) {
-      console.error(err);
-      if (err.response && err.response.status === 404) {
+      if (err.response && err.response.status === 403) {
+        setError("⛔ You have reached the maximum attempts for this quiz.");
+      } else if (err.response && err.response.status === 404) {
         setError("Quiz not found! Please check the code.");
       } else {
         setError("Server error. Please try again.");
@@ -51,9 +58,14 @@ const StudentDashboard = () => {
     }
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('userName');
+    navigate('/');
+  };
+
   return (
     <div className="dashboard-container">
-      {/* Navigation Bar */}
       <nav className="dashboard-nav">
         <div className="nav-brand">
           <Hexagon size={28} strokeWidth={2.5} />
@@ -65,26 +77,21 @@ const StudentDashboard = () => {
             <span>{userName}</span>
           </div>
           <button onClick={handleLogout} className="logout-btn">
-            <LogOut size={18} />
-            <span>Logout</span>
+            <LogOut size={18} /> <span>Logout</span>
           </button>
         </div>
       </nav>
 
-      {/* Main Content */}
       <div className="dashboard-content">
         <div className="welcome-section">
-          <h1>Ready to learn?</h1>
-          <p>Enter the code provided by your faculty to start a quiz.</p>
+          <h1>Welcome, {userName}!</h1>
+          <p>Enter a quiz code to begin or review your past results.</p>
         </div>
 
-        {/* Join Quiz Card */}
         <div className="dashboard-card join-quiz-card">
           <Code size={48} color="#4f46e5" style={{ marginBottom: '1rem' }} />
           <h2>Join a Quiz</h2>
-          <p style={{ color: '#6b7280', marginBottom: '1.5rem' }}>
-            Input the unique 6-character session code.
-          </p>
+          <p style={{ color: '#6b7280', marginBottom: '1.5rem' }}>Enter the 6-character code.</p>
 
           <form onSubmit={handleJoin} style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <div className="code-input-group">
@@ -97,15 +104,49 @@ const StudentDashboard = () => {
                 maxLength={6}
                 required
               />
-              <button type="submit" className="join-btn">
-                Join
-              </button>
+              <button type="submit" className="join-btn">Start</button>
             </div>
           </form>
+          {error && <div style={{ marginTop: '16px', color: '#ef4444', fontWeight: '500' }}>{error}</div>}
+        </div>
 
-          {error && (
-            <div style={{ marginTop: '16px', color: '#ef4444', fontWeight: '500' }}>
-              {error}
+        <div className="dashboard-card">
+          <div style={{display:'flex', alignItems:'center', gap:'10px', marginBottom:'20px'}}>
+            <History size={24} color="#4f46e5"/>
+            <h2 style={{margin:0, fontSize:'1.25rem'}}>Recent Activity</h2>
+          </div>
+
+          {attempts.length === 0 ? (
+            <p style={{color:'#6b7280'}}>No quizzes taken yet.</p>
+          ) : (
+            <div style={{display:'grid', gap:'10px'}}>
+              {attempts.map((att) => (
+                <div key={att.id} style={{
+                  padding: '15px',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '8px',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  background: '#f9fafb'
+                }}>
+                  <div>
+                    <div style={{fontWeight:'bold', color:'#374151'}}>Quiz #{att.quizId}</div>
+                    <div style={{fontSize:'0.85rem', color:'#6b7280', display:'flex', alignItems:'center', gap:'5px'}}>
+                      <Clock size={14}/> {new Date(att.timestamp).toLocaleDateString()}
+                    </div>
+                  </div>
+                  <div style={{textAlign:'right'}}>
+                    <span style={{
+                      fontSize: '1.1rem',
+                      fontWeight: 'bold',
+                      color: (att.score / att.totalQuestions) >= 0.5 ? '#059669' : '#ef4444'
+                    }}>
+                      {att.score} / {att.totalQuestions}
+                    </span>
+                  </div>
+                </div>
+              ))}
             </div>
           )}
         </div>
