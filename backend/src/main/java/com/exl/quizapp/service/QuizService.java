@@ -1,11 +1,9 @@
 package com.exl.quizapp.service;
 
+import com.exl.quizapp.dao.AttemptDao;
 import com.exl.quizapp.dao.QuestionDao;
 import com.exl.quizapp.dao.QuizDao;
-import com.exl.quizapp.model.Question;
-import com.exl.quizapp.model.QuestionWrapper;
-import com.exl.quizapp.model.Quiz;
-import com.exl.quizapp.model.Response;
+import com.exl.quizapp.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +21,24 @@ public class QuizService {
     QuizDao quizDao;
     @Autowired
     QuestionDao questionDao;
+    @Autowired
+    AttemptDao attemptDao;
+
+
+    public ResponseEntity<QuizStartResponse> getQuizByCode(String code){
+        Optional<Quiz> quizOP= quizDao.findByCode(code);
+        if(quizOP.isEmpty()) {
+            return new ResponseEntity<>(null,HttpStatus.NOT_FOUND);
+        }
+        Quiz quiz= quizOP.get();
+        List<Question> questionsFromDB = quiz.getQuestions();
+        List<QuestionWrapper> questionsForUser =  new ArrayList<>();
+        for(Question q: questionsFromDB){
+            questionsForUser.add(new QuestionWrapper(q.getId(),q.getQuestionTitle(),q.getOption1(),q.getOption2(),q.getOption3(),q.getOption4()));
+        }
+        QuizStartResponse response = new QuizStartResponse(quiz.getId(), quiz.getTitle(), quiz.getDuration(), questionsForUser);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 
     public String generateQuizCode() {
         String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -71,19 +87,27 @@ public class QuizService {
 
         return new ResponseEntity<>(questionsForUser, HttpStatus.OK);
     }
-
-    public ResponseEntity<Integer> calculateResult(Integer id, List<Response> responses) {
-        Quiz quiz = quizDao.findById(id).get();
+    public Attempt getAttemptById(Long id) {
+        return attemptDao.findById(id).orElse(null);
+    }
+    // Change return type from ResponseEntity<Integer> to ResponseEntity<Attempt>
+    public ResponseEntity<Attempt> calculateResult(Integer id, List<Response> responses, Long userId) {
+        Quiz quiz = quizDao.findById(id).orElseThrow(() -> new RuntimeException("Quiz not found"));
         List<Question> questions = quiz.getQuestions();
+
         int right = 0;
         int i = 0;
         for(Response response : responses){
-            if(response.getResponse().equals(questions.get(i).getRightAnswer()))
+            if(i < questions.size() && response.getResponse().equals(questions.get(i).getRightAnswer()))
                 right++;
-
             i++;
         }
-        return new ResponseEntity<>(right, HttpStatus.OK);
+
+        Attempt attempt = new Attempt(userId, id, right, questions.size());
+        attemptDao.save(attempt);
+
+        // RETURN THE ATTEMPT OBJECT instead of just 'right'
+        return new ResponseEntity<>(attempt, HttpStatus.OK);
     }
 
     public ResponseEntity<List<Quiz>> getAllQuizzes() {
@@ -100,6 +124,7 @@ public class QuizService {
             Quiz quiz = quizOptional.get();
             quiz.setPublished(!quiz.isPublished());
             quizDao.save(quiz);
+
             return new ResponseEntity<>("Status Updated", HttpStatus.OK);
         }
         return new ResponseEntity<>("Quiz Not Found", HttpStatus.NOT_FOUND);

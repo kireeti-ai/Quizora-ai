@@ -35,24 +35,21 @@ const Auth = () => {
     try {
       const endpoint = isLogin ? 'http://localhost:8080/login' : 'http://localhost:8080/register';
       const response = await axios.post(endpoint, payload);
-      
-      if (isLogin) {
+if (isLogin) {
         const token = response.data;
         localStorage.setItem('token', token);
-        
-        // Decode token to find role
-        const decodedToken = parseJwt(token);
-        
-        // Logic: Check role from token OR fallback to email check if token doesn't have role claim
-        // This ensures it works even if your backend JWT setup is basic
-        const userRole = decodedToken?.role || (email.toLowerCase().includes('faculty') ? 'FACULTY' : 'STUDENT');
 
-        alert("Login Successful!");
+        const decodedToken = parseJwt(token);
+
+        // This will now correctly read 'FACULTY' or 'STUDENT' from the token
+        const userRole = decodedToken?.role;
+
+        console.log("Logged in Role:", userRole); // Debugging
 
         if (userRole === 'FACULTY') {
           navigate('/faculty/dashboard');
         } else {
-          navigate('/home');
+          navigate(' /student/dashboard'); // Or /student/dashboard if you created it
         }
 
       } else {
@@ -69,14 +66,14 @@ const Auth = () => {
 
   return (
     <div className="split-screen-container">
-      
+
       {/* LEFT SIDE: Sharp Gradient & Branding */}
       <div className="left-panel">
         <div className="brand-header">
           <Hexagon size={32} className="brand-logo" strokeWidth={2.5} />
           <h1>Quizora - Ai </h1>
         </div>
-        
+
         <div className="quote-container">
           <h2>"The beautiful thing about learning is that no one can take it away from you."</h2>
           <p>— B.B. King</p>
@@ -147,14 +144,14 @@ const Auth = () => {
 
             {!isLogin && (
               <div className="role-selector">
-                <div 
+                <div
                   className={`role-option ${role === 'STUDENT' ? 'active' : ''}`}
                   onClick={() => setRole('STUDENT')}
                 >
                   <GraduationCap size={16} />
                   <span>Student</span>
                 </div>
-                <div 
+                <div
                   className={`role-option ${role === 'FACULTY' ? 'active' : ''}`}
                   onClick={() => setRole('FACULTY')}
                 >

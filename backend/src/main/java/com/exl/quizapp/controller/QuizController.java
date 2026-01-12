@@ -1,10 +1,9 @@
 package com.exl.quizapp.controller;
 
-import com.exl.quizapp.model.QuestionWrapper;
-import com.exl.quizapp.model.Quiz;
-import com.exl.quizapp.model.Response;
+import com.exl.quizapp.model.*;
 import com.exl.quizapp.service.QuizService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,10 +26,23 @@ public class QuizController {
     public ResponseEntity<List<QuestionWrapper>> getQuizQuestions(@PathVariable Integer id){
         return quizService.getQuizQuestions(id);
     }
+    @GetMapping("code/{code}")
+    public ResponseEntity<QuizStartResponse> getQuizByCode(@PathVariable String code){
+        return quizService.getQuizByCode(code);
+    }
 
     @PostMapping("submit/{id}")
-    public ResponseEntity<Integer> submitQuiz(@PathVariable Integer id , @RequestBody List<Response> responses){
-        return quizService.calculateResult(id, responses);
+    public ResponseEntity<Attempt> submitQuiz(@PathVariable Integer id , @RequestBody List<Response> responses, long userId){
+        return quizService.calculateResult(id, responses,userId);
+    }
+    @GetMapping("result/{id}")
+    public ResponseEntity<Attempt> getResult(@PathVariable Long id) {
+        // You might want to move this logic to Service, but this is fine for now
+        return new ResponseEntity<>(
+
+                quizService.getAttemptById(id),
+                HttpStatus.OK
+        );
     }
 
     @GetMapping("all")
