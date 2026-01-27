@@ -1,5 +1,5 @@
 import React from "react";
-import { Hexagon, LayoutDashboard, Database, LogOut } from "lucide-react";
+import { Hexagon, LayoutDashboard, Database, LogOut, UserCircle } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 
 import "../../pages/Faculty/Faculty.css";
@@ -40,11 +40,22 @@ const Sidebar = () => {
         <Database size={20} />
         <span>Question Bank</span>
       </div>
+      
       <div className={`nav-link ${location.pathname === "/faculty/ai-generator" ? "active" : ""}`}
      onClick={() => navigate("/faculty/ai-generator")}>
-  <Hexagon size={20} /> {/* Or BrainCircuit icon if available */}
-  <span>AI Generator</span>
-</div>
+        <Hexagon size={20} />
+        <span>AI Generator</span>
+      </div>
+
+      <div
+        className={`nav-link ${
+          location.pathname === "/profile" ? "active" : ""
+        }`}
+        onClick={() => navigate("/profile")}
+      >
+        <UserCircle size={20} />
+        <span>Profile</span>
+      </div>
 
       <div className="nav-link logout-btn" onClick={handleLogout}>
         <LogOut size={20} />

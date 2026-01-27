@@ -76,6 +76,24 @@ body {
   background: #fee2e2;
 }
 
+.profile-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  color: var(--primary);
+  border: 1px solid #e0e7ff;
+  background: #f0f4ff;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+
+.profile-btn:hover {
+  background: #e0e7ff;
+}
+
 .dashboard-content {
   max-width: 1000px;
   margin: 2rem auto;

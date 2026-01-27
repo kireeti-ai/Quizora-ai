@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { LogOut, User, Code, Hexagon, History, Clock } from 'lucide-react';
+import { LogOut, User, Code, Hexagon, History, Clock, UserCircle } from 'lucide-react';
 import './Student.css';
 
 const StudentDashboard = () => {
@@ -76,6 +76,9 @@ const StudentDashboard = () => {
             <User size={20} />
             <span>{userName}</span>
           </div>
+          <button onClick={() => navigate('/profile')} className="profile-btn">
+            <UserCircle size={18} /> <span>Profile</span>
+          </button>
           <button onClick={handleLogout} className="logout-btn">
             <LogOut size={18} /> <span>Logout</span>
           </button>

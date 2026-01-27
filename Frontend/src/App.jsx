@@ -6,6 +6,8 @@ import StudentDashboard from './pages/Student/StudentDashboard';
 import QuizPlayer from './pages/Student/QuizPlayer';
 import ResultPage from './pages/Student/ResultPage';
 import AIQuestionGenerator from './pages/Faculty/AIQuestionGenerator';
+import Profile from './pages/Profile/Profile';
+
 function App() {
   return (
     <BrowserRouter>
@@ -22,6 +24,9 @@ function App() {
         <Route path="/student/quiz/:code" element={<QuizPlayer />} />
         <Route path="/student/result/:id" element={<ResultPage />} />
         <Route path="/faculty/ai-generator" element={<AIQuestionGenerator />} />
+        
+        {/* Profile Route */}
+        <Route path="/profile" element={<Profile />} />
       </Routes>
     </BrowserRouter>
   )

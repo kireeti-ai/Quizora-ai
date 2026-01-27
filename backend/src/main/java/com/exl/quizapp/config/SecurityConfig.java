@@ -49,7 +49,7 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(auth -> auth
                         // FIX: Added "/ai/**" to the permitAll list so the generator is accessible
-                        .requestMatchers("/login", "/register", "/quiz/**", "/question/**", "/ai/**").permitAll()
+                        .requestMatchers("/login", "/register", "/verify-otp", "/quiz/**", "/question/**", "/ai/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .authenticationProvider(authenticationProvider())

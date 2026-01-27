@@ -11,6 +11,9 @@ const Auth = () => {
   const [password, setPassword] = useState('');
   const [role, setRole] = useState('STUDENT');
   const [loading, setLoading] = useState(false);
+  const [otpRequired, setOtpRequired] = useState(false);
+  const [otp, setOtp] = useState('');
+  const [otpMessage, setOtpMessage] = useState('');
 
   const navigate = useNavigate();
   const parseJwt = (token) => {
@@ -27,25 +30,31 @@ const Auth = () => {
     const payload = {
       username: email,
       password: password,
-      ...(!isLogin && { name, role }),
+      ...(!isLogin && { name, role, email }),
     };
 
     try {
       const endpoint = isLogin ? 'http://localhost:8080/login' : 'http://localhost:8080/register';
       const response = await axios.post(endpoint, payload);
-if (isLogin) {
-        const token = response.data;
-        localStorage.setItem('token', token);
-        const decodedToken = parseJwt(token);
-        const userRole = decodedToken?.role;
-
-        console.log("Logged in Role:", userRole); // Debugging
-        if (userRole === 'FACULTY') {
-          navigate('/faculty/dashboard');
+      if (isLogin) {
+        // Check if OTP is required
+        if (response.data.otpRequired) {
+          setOtpRequired(true);
+          setOtpMessage(response.data.message || 'OTP sent to your email');
         } else {
-          navigate('/student/dashboard');
-        }
+          // Old flow compatibility - direct token
+          const token = response.data;
+          localStorage.setItem('token', token);
+          const decodedToken = parseJwt(token);
+          const userRole = decodedToken?.role;
 
+          console.log("Logged in Role:", userRole);
+          if (userRole === 'FACULTY') {
+            navigate('/faculty/dashboard');
+          } else {
+            navigate('/student/dashboard');
+          }
+        }
       } else {
         alert("Registration Successful! Please login.");
         setIsLogin(true);
@@ -53,6 +62,35 @@ if (isLogin) {
     } catch (error) {
       console.error(error);
       alert("Authentication failed.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleOtpSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const response = await axios.post('http://localhost:8080/verify-otp', {
+        email: email,
+        otp: otp,
+      });
+
+      const token = response.data.token;
+      localStorage.setItem('token', token);
+      const decodedToken = parseJwt(token);
+      const userRole = decodedToken?.role;
+
+      console.log("Logged in Role:", userRole);
+      if (userRole === 'FACULTY') {
+        navigate('/faculty/dashboard');
+      } else {
+        navigate('/student/dashboard');
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Invalid OTP. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -82,12 +120,52 @@ if (isLogin) {
       <div className="right-panel">
         <div className="auth-box">
           <div className="auth-header">
-            <h2>{isLogin ? 'Welcome back.' : 'Join the platform.'}</h2>
+            <h2>{otpRequired ? 'Verify OTP' : (isLogin ? 'Welcome back.' : 'Join the platform.')}</h2>
             <p className="sub-text">
-              {isLogin ? 'Enter your credentials to access your account.' : 'Start your journey with us today.'}
+              {otpRequired 
+                ? otpMessage 
+                : (isLogin ? 'Enter your credentials to access your account.' : 'Start your journey with us today.')}
             </p>
           </div>
 
+          {otpRequired ? (
+            <form className="auth-form" onSubmit={handleOtpSubmit}>
+              <div className="input-group">
+                <label>Enter OTP</label>
+                <div className="input-wrapper">
+                  <Lock className="input-icon" size={18} />
+                  <input
+                    type="text"
+                    placeholder="6-digit OTP"
+                    className="input-field"
+                    value={otp}
+                    onChange={(e) => setOtp(e.target.value)}
+                    maxLength={6}
+                    required
+                  />
+                </div>
+              </div>
+
+              <button type="submit" className="btn-primary" disabled={loading}>
+                <span>{loading ? 'Verifying...' : 'Verify OTP'}</span>
+                {!loading && <ArrowRight size={18} />}
+              </button>
+
+              <div className="auth-footer">
+                <button 
+                  type="button"
+                  onClick={() => {
+                    setOtpRequired(false);
+                    setOtp('');
+                    setOtpMessage('');
+                  }} 
+                  className="link-btn"
+                >
+                  Back to login
+                </button>
+              </div>
+            </form>
+          ) : (
           <form className="auth-form" onSubmit={handleSubmit}>
             {!isLogin && (
               <div className="input-group">
@@ -160,13 +238,16 @@ if (isLogin) {
               {!loading && <ArrowRight size={18} />}
             </button>
           </form>
+          )}
 
+          {!otpRequired && (
           <div className="auth-footer">
             <span>{isLogin ? "New here?" : "Member already?"}</span>
             <button onClick={() => setIsLogin(!isLogin)} className="link-btn">
               {isLogin ? 'Create an account' : 'Log in'}
             </button>
           </div>
+          )}
         </div>
       </div>
     </div>
