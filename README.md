@@ -25,6 +25,9 @@ The system follows a strict **role-based architecture**:
 ## 2. Key Features
 
 - **Role-based Access Control:** Secure Faculty and Student logins.
+- **Multi-Factor Authentication (2FA):** Email-based OTP verification for enhanced security.
+- **AES-256 Encryption:** Secure encryption for sensitive user data.
+- **QR Code Generation:** User identity verification via QR codes.
 - **AI-Assisted Question Generation:** Upload a PDF (Syllabus/Notes) and generate questions automatically using Groq/OpenAI models.
 - **Manual Question Management:** Full CRUD capabilities for quiz questions.
 - **Unique Quiz Codes:** Secure, code-based access for students (no complex enrollment needed).
@@ -32,17 +35,20 @@ The system follows a strict **role-based architecture**:
 - **Analytics Dashboard:** Faculty can view performance metrics and student attempts.
 - **Secure Architecture:** JWT-based authentication and BCrypt password hashing.
 
+For detailed security features documentation, see [SECURITY_FEATURES.md](SECURITY_FEATURES.md).
+
 ---
 
 ## 3. Technology Stack
 
 ### Backend
-- **Language:** Java 21
+- **Language:** Java 17
 - **Framework:** Spring Boot 3.4.1
 - **AI Integration:** Spring AI (Groq / OpenAI compatible)
 - **Database:** MySQL
 - **ORM:** Spring Data JPA
 - **Authentication:** JWT (JSON Web Tokens) & Spring Security
+- **Security:** 2FA with OTP, AES-256 Encryption, QR Code Generation
 - **Build Tool:** Maven
 
 ### Frontend
@@ -56,7 +62,7 @@ The system follows a strict **role-based architecture**:
 ## 4. Getting Started
 
 ### Prerequisites
-- Java 21 SDK
+- Java 17 SDK
 - Maven
 - MySQL Server
 - Node.js (npm)
