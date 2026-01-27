@@ -21,6 +21,7 @@ public class Users {
 
     private String username;
     private String password;
+    private String email; // Encrypted email field
 
     public String getName() {
         return name;
@@ -72,5 +73,13 @@ public class Users {
 
     public String getPassword() {
         return password;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 }
