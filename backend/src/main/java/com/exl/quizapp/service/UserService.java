@@ -65,20 +65,20 @@ public class UserService {
             // Generate OTP
             String otp = otpService.generateOtp(user.getUsername());
 
-            // Decrypt email to send OTP
-            String decryptedEmail = user.getUsername(); // username is email
+            // Send OTP to user's email (username is used as email)
+            String userEmail = user.getUsername();
             try {
-                emailService.sendOtpEmail(decryptedEmail, otp);
+                emailService.sendOtpEmail(userEmail, otp);
                 
                 response.put("otpRequired", true);
                 response.put("message", "OTP sent to your email");
                 response.put("email", user.getUsername());
             } catch (Exception e) {
-                // If email sending fails, log but still return success for development
+                // If email sending fails, log the error and fail authentication
+                // NOTE: For development/testing, you may temporarily want to display the OTP,
+                // but this should NEVER be done in production as it bypasses email verification
                 System.err.println("Failed to send OTP email: " + e.getMessage());
-                response.put("otpRequired", true);
-                response.put("message", "OTP: " + otp + " (Email service not configured)");
-                response.put("email", user.getUsername());
+                throw new RuntimeException("Failed to send OTP. Please check email configuration.");
             }
 
             return response;

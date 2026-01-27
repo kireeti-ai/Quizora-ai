@@ -19,12 +19,27 @@ public class EncryptionService {
     private static final String ALGORITHM = "AES/CBC/PKCS5Padding";
     private static final String KEY_ALGORITHM = "AES";
     private static final int IV_SIZE = 16;
+    private static final int REQUIRED_KEY_LENGTH = 32; // 32 bytes for AES-256
+
+    /**
+     * Validate that encryption key is exactly 32 bytes for AES-256
+     */
+    private void validateKey() {
+        if (encryptionKey.getBytes(StandardCharsets.UTF_8).length != REQUIRED_KEY_LENGTH) {
+            throw new IllegalStateException(
+                "Encryption key must be exactly " + REQUIRED_KEY_LENGTH + " bytes (characters) for AES-256. " +
+                "Current key length: " + encryptionKey.getBytes(StandardCharsets.UTF_8).length
+            );
+        }
+    }
 
     /**
      * Encrypt data using AES-256-CBC
      */
     public String encrypt(String data) {
         try {
+            validateKey();
+            
             // Generate random IV
             byte[] iv = new byte[IV_SIZE];
             SecureRandom random = new SecureRandom();
@@ -60,6 +75,8 @@ public class EncryptionService {
      */
     public String decrypt(String encryptedData) {
         try {
+            validateKey();
+            
             // Decode Base64
             byte[] combined = Base64.getDecoder().decode(encryptedData);
 

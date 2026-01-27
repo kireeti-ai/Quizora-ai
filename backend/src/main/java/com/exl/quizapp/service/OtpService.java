@@ -7,6 +7,14 @@ import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * OTP Service for generating and validating one-time passwords
+ * 
+ * NOTE: This implementation uses in-memory storage which has limitations:
+ * - OTPs will be lost on application restart
+ * - Not suitable for clustered/load-balanced environments
+ * - For production, consider using a database table or distributed cache (e.g., Redis)
+ */
 @Service
 public class OtpService {
 
@@ -35,7 +43,7 @@ public class OtpService {
     /**
      * Validate OTP
      */
-    public boolean validateOtp(String email, String otp) {
+    public synchronized boolean validateOtp(String email, String otp) {
         OtpData otpData = otpStorage.get(email);
 
         if (otpData == null) {
@@ -51,7 +59,7 @@ public class OtpService {
         // Check if OTP matches
         boolean isValid = otpData.getOtp().equals(otp);
 
-        // Remove OTP after successful validation
+        // Remove OTP after successful validation (use-once policy)
         if (isValid) {
             otpStorage.remove(email);
         }
